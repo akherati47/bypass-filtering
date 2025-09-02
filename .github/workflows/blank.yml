@@ -18,7 +18,7 @@ jobs:
         run: mkdir -p downloads
 
       - name: show deb_links.txt content
-        run: cat deb_links.txt
+        run: pwd
 
       - name: Download .deb files from deb_links.txt
         run: |
