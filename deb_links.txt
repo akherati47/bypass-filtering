@@ -1,0 +1,13 @@
+http://kali.download/kali/pool/main/m/mingw-w64/mingw-w64-i686-dev_12.0.0-5_all.deb
+http://kali.download/kali/pool/main/m/mingw-w64/mingw-w64-x86-64-dev_12.0.0-5_all.deb
+http://kali.download/kali/pool/main/i/impacket/python3-impacket_0.12.0+gite61ff5d-0kali1_all.deb
+http://kali.download/kali/pool/main/b/bloodhound.py/bloodhound.py_1.8.0-0kali1_all.deb
+http://kali.download/kali/pool/main/u/unicrypto/python3-unicrypto_0.0.10-2_all.deb
+http://kali.download/kali/pool/main/p/python-minikerberos/python3-minikerberos_0.4.4-0kali2_all.deb
+http://kali.download/kali/pool/main/d/dploot/python3-dploot_3.1.2-0kali1_all.deb
+http://kali.download/kali/pool/main/a/aiosmb/python3-aiosmb_0.4.4-0kali2_all.deb
+http://kali.download/kali/pool/main/p/pypykatz/python3-pypykatz_0.6.10-0kali3_all.deb
+http://kali.download/kali/pool/main/p/python-lsassy/python3-lsassy_3.1.11-0kali1_all.deb
+http://mirror.serverion.com/kali/pool/main/m/masky/python3-masky_0.2.0-0kali4_all.deb
+http://kali.download/kali/pool/main/n/netexec/netexec_1.4.0-0kali3_all.deb
+http://kali.download/kali/pool/main/r/responder/responder_3.1.6.0-0kali1_all.deb
