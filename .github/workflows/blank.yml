@@ -17,8 +17,11 @@ jobs:
       - name: Create download directory
         run: mkdir -p downloads
 
-      - name: show deb_links.txt content
+      - name: pwd
         run: pwd
+
+      - name: ls
+        run: ls
 
       - name: Download .deb files from deb_links.txt
         run: |
