@@ -1,10 +1,10 @@
-name: Download .deb files
+name: Download .rar files
 
 on:
   workflow_dispatch:   # run manually
   push:
     paths:
-      - "deb_links.txt"   # also run whenever deb_links.txt changes
+      - "deb_links.txt"   # or rename to rar_links.txt
 
 jobs:
   download:
@@ -17,22 +17,40 @@ jobs:
       - name: Create download directory
         run: mkdir -p downloads
 
-      - name: pwd
-        run: pwd
-
-      - name: ls
-        run: ls
-
-      - name: Download .deb files from deb_links.txt
+      - name: Download files from links.txt
         run: |
           while read -r url; do
             [ -z "$url" ] && continue
             echo "Downloading $url"
-            curl -L -o "downloads/$(basename "$url")" "$url"
+            
+            # Extract filename from the 'file=' parameter in the URL
+            if [[ "$url" =~ file=([^&]+) ]]; then
+              raw_filename="${BASH_REMATCH[1]}"
+              # URL decode the filename
+              filename=$(printf '%b' "${raw_filename//%/\\x}")
+              # Remove any remaining invalid characters for artifact upload
+              filename=$(echo "$filename" | sed 's/[^a-zA-Z0-9._-]/_/g')
+            else
+              # Fallback: use basename without query string
+              filename=$(basename "$url" | cut -d'?' -f1)
+              filename=$(echo "$filename" | sed 's/[^a-zA-Z0-9._-]/_/g')
+            fi
+            
+            # Ensure .rar extension if missing
+            if [[ "$filename" != *.rar && "$filename" != *.zip ]]; then
+              filename="${filename}.rar"
+            fi
+            
+            echo "Saving as: $filename"
+            curl -L -o "downloads/$filename" "$url"
+            
           done < deb_links.txt
 
-      - name: Upload .deb files as workflow artifacts
+      - name: List downloaded files
+        run: ls -la downloads/
+
+      - name: Upload files as workflow artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: deb-packages
+          name: downloaded-files
           path: downloads/
