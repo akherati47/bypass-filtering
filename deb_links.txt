@@ -1,2 +1,1 @@
-https://dl5.vip.hide01.ir/server.php?dl=4c52f9e106d0d571897b267828e04fc2&now=1777116866&expire=1777376066&uid=43889&salt=1970178358&file=SpecterOps%2FSpecterOps+-+Adversary+Tactics+PowerShell+hide01.ir.rar
-
+https://raw.githubusercontent.com/jozefizso/apimonitor/refs/heads/main/apimonitor-x86.exe
