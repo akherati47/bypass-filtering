@@ -20,7 +20,7 @@ jobs:
       - name: Create download directory
         run: mkdir -p downloads
 
-      - name: Download files from deb_links.txt
+      - name: Download files from deb_links.txt and chunk to 5MB html parts
         run: |
           while read -r url; do
             [ -z "$url" ] && continue
@@ -41,11 +41,25 @@ jobs:
             # Remove invalid filename characters
             filename=$(echo "$filename" | tr -d '\"<>|:*?\r\n')
 
-            curl -L --fail -o "downloads/$filename" "$url"
+            filepath="downloads/$filename"
+
+            # Download original file
+            curl -L --fail -o "$filepath" "$url"
+
+            # Convert to base64 and split into 5MB chunks
+            base64 "$filepath" | split -b 5242880 -d -a 4 - "downloads/${filename}.part_"
+
+            # Rename chunks to .html
+            for part in downloads/${filename}.part_*; do
+              mv "$part" "$part.html"
+            done
+
+            # Remove original file after chunking
+            rm -f "$filepath"
           done < deb_links.txt
 
       - name: List downloaded files
-        run: ls -la downloads/
+        run: ls -lah downloads/
 
       - name: Upload files as workflow artifacts
         uses: actions/upload-artifact@v4
@@ -57,13 +71,9 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      
+
       - name: Commit and push downloaded files
         run: |
           git add downloads/
-      
-          git diff --cached --quiet || \
-          git commit -m "Add downloaded files"
-      
+          git diff --cached --quiet || git commit -m "Add downloaded files as chunked html parts"
           git push
-
