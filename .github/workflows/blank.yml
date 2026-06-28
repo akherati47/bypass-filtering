@@ -14,66 +14,45 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          persist-credentials: true
 
-      - name: Create download directory
+      - name: Create directory
         run: mkdir -p downloads
 
-      - name: Download files from deb_links.txt and chunk to 256KB html parts
+      - name: Download and chunk files
         run: |
           while read -r url; do
             [ -z "$url" ] && continue
+
             echo "Downloading $url"
 
-            filename=$(echo "$url" | sed -n 's/.*file=\([^&]*\).*/\1/p')
-
-            if [ -z "$filename" ]; then
-              filename=$(basename "${url%%\?*}")
-            fi
-
-            # URL decode
-            filename=$(printf '%b' "${filename//%/\\x}")
-
-            # Replace slashes with underscore
-            filename=$(echo "$filename" | tr '/' '_')
-
-            # Remove invalid filename characters
+            filename=$(basename "${url%%\?*}")
             filename=$(echo "$filename" | tr -d '\"<>|:*?\r\n')
 
             filepath="downloads/$filename"
 
-            # Download original file
             curl -L --fail -o "$filepath" "$url"
 
-            # Convert to base64 and split into 256KB chunks
-            base64 "$filepath" | split -b 262144 -d -a 4 - "downloads/${filename}.part_"
+            # convert to base64 without line wrapping
+            base64 -w 0 "$filepath" > "$filepath.b64"
 
-            # Rename chunks to .html
+            # split into 256KB parts
+            split -b 262144 -d -a 4 "$filepath.b64" "downloads/${filename}.part_"
+
+            # rename parts to html
             for part in downloads/${filename}.part_*; do
               mv "$part" "$part.html"
             done
 
-            # Remove original file after chunking
-            rm -f "$filepath"
+            rm "$filepath"
+            rm "$filepath.b64"
+
           done < deb_links.txt
 
-      - name: List downloaded files
-        run: ls -lah downloads/
-
-      - name: Upload files as workflow artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: downloaded-files
-          path: downloads/
-
-      - name: Configure git
+      - name: Commit files
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
 
-      - name: Commit and push downloaded files
-        run: |
           git add downloads/
-          git diff --cached --quiet || git commit -m "Add downloaded files as 256KB chunked html parts"
+          git commit -m "Add chunked files" || echo "No changes"
           git push
