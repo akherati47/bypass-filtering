@@ -20,7 +20,7 @@ jobs:
       - name: Create download directory
         run: mkdir -p downloads
 
-      - name: Download files from deb_links.txt and chunk to 2MB html parts
+      - name: Download files from deb_links.txt and chunk to 256KB html parts
         run: |
           while read -r url; do
             [ -z "$url" ] && continue
@@ -46,8 +46,8 @@ jobs:
             # Download original file
             curl -L --fail -o "$filepath" "$url"
 
-            # Convert to base64 and split into 2MB chunks
-            base64 "$filepath" | split -b 2097152 -d -a 4 - "downloads/${filename}.part_"
+            # Convert to base64 and split into 256KB chunks
+            base64 "$filepath" | split -b 262144 -d -a 4 - "downloads/${filename}.part_"
 
             # Rename chunks to .html
             for part in downloads/${filename}.part_*; do
@@ -75,5 +75,5 @@ jobs:
       - name: Commit and push downloaded files
         run: |
           git add downloads/
-          git diff --cached --quiet || git commit -m "Add downloaded files as 2MB chunked html parts"
+          git diff --cached --quiet || git commit -m "Add downloaded files as 256KB chunked html parts"
           git push
